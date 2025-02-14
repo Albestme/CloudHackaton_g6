@@ -1,0 +1,31 @@
+{
+"questions": [
+        {
+            "id": 1,
+            "question": "What is your favorite color?",
+            "type": "text"
+        },
+        {
+            "id": 2,
+            "question": "What is your age?",
+            "type": "number"
+        },
+        {
+            "id": 3,
+            "question": "What is your gender?",
+            "type": "multiple-choice",
+            "options": ["Male", "Female", "Other"]
+        },
+        {
+            "id": 4,
+            "question": "What is your favorite programming language?",
+            "type": "multiple-choice",
+            "options": ["JavaScript", "Python", "Java", "C#", "Other"]
+        },
+        {
+            "id": 5,
+            "question": "Do you like traveling?",
+            "type": "boolean"
+        }
+    ]
+}
