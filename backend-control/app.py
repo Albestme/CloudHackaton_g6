@@ -10,7 +10,7 @@ DB_CONFIG = {
     'user': 'admin',
     'password': 'contrasena',
     'database': 'Tarragona',
-    'port': 3306
+    #'port': 3306
 }
 
 def connect_db():
@@ -65,4 +65,4 @@ def procesar():
         conn.close()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
