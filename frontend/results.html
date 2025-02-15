@@ -9,10 +9,10 @@
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <link rel="stylesheet" href="./main.css" />
   <style>
-    /* Ajusta o agrega estos estilos para la cuadrícula y resaltado */
+    /* Estilos actualizados para un mapa más grande y efecto hover */
     .image-container {
       position: relative;
-      width: 800px; /* Ajusta según tus necesidades */
+      width: 1000px; /* Mapa más grande */
       margin: 0 auto;
     }
     .background-image {
@@ -31,8 +31,15 @@
       grid-template-rows: repeat(4, 1fr);
     }
     .grid-cell {
-      border: 1px solid rgba(255, 255, 255, 0.5); /* Opcional para ver las divisiones */
+      border: 1px solid rgba(255, 255, 255, 0.7);
       position: relative;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .grid-cell:hover {
+      cursor: pointer;
+      transform: scale(1.05);
+      opacity: 0.9;
+      border-color: #00aa00;
     }
     .highlight {
       position: absolute;
@@ -40,12 +47,37 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 255, 0, 0.3); /* Verde translúcido */
+      background-color: rgba(0, 255, 0, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8em;
-      color: black;
+      font-size: 1em; /* Letra un poco más grande */
+      color: #000;
+    }
+    .cell-info {
+      margin-top: 20px;
+      background: #f9f9f9;
+      padding: 20px;
+      border: 1px solid #ddd;
+      width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .cell-info h2 {
+      margin-top: 0;
+    }
+    .info-row {
+      display: flex;
+      margin-bottom: 8px;
+    }
+    .info-label {
+      font-weight: bold;
+      width: 150px;
+    }
+    .info-value {
+      flex: 1;
     }
   </style>
 </head>
@@ -57,24 +89,56 @@
       constructor(props) {
         super(props);
         this.state = {
-          topCells: [] // Aquí se almacenará el array top_cells recibido del backend
+          topCells: [],
+          selectedCellInfo: null
         };
+        this.handleCellClick = this.handleCellClick.bind(this);
       }
 
       componentDidMount() {
         const urlParams = new URLSearchParams(window.location.search);
         const resultsParam = urlParams.get('results');
         if (resultsParam) {
-          // Decodificar y parsear el JSON
           const data = JSON.parse(decodeURIComponent(resultsParam));
-          // Se asume que el JSON tiene la propiedad "top_cells"
           this.setState({ topCells: data.top_cells });
         }
       }
 
+      handleCellClick(cellId) {
+        fetch(`http://localhost:5000/cell_info/${cellId}`)
+          .then(response => response.json())
+          .then(data => {
+            console.log('Cell info:', data);
+            this.setState({ selectedCellInfo: data });
+          })
+          .catch(error => console.error('Error fetching cell info:', error));
+      }
+
+      renderCellInfo(info) {
+        // Excluir los campos no deseados
+        const excludeKeys = [
+          "coords_abajo_dch",
+          "coords_abajo_izq",
+          "coords_arriba_dch",
+          "coords_arriba_izq",
+          "id"
+        ];
+        const keysToShow = Object.keys(info).filter(key => !excludeKeys.includes(key));
+        return (
+          <div>
+            {keysToShow.map(key => (
+              <div key={key} className="info-row">
+                <span className="info-label">{key}:</span>
+                <span className="info-value">{info[key]}</span>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
       render() {
-        const { topCells } = this.state;
-        // Crear un mapa de cell_id a score para consulta rápida
+        const { topCells, selectedCellInfo } = this.state;
+        // Crear un mapa: cell_id -> score
         const cellMap = {};
         topCells.forEach(cell => {
           cellMap[cell.cell_id] = cell.score;
@@ -82,9 +146,7 @@
 
         return (
           <div>
-            <h1>
-              Aquestes zones són les que millor s'adapten als teus interessos!
-            </h1>
+            <h1>Aquestes zones són les que millor s'adapten als teus interessos!</h1>
             <div className="image-container">
               <img
                 src="./tarragona.jpeg"
@@ -93,10 +155,14 @@
               />
               <div className="grid-overlay">
                 {[...Array(16)].map((_, index) => {
-                  // Suponemos que el cell_id corresponde a index + 1
+                  // Suponemos que cell_id es igual a index + 1
                   const cellId = index + 1;
                   return (
-                    <div key={index} className="grid-cell">
+                    <div
+                      key={index}
+                      className="grid-cell"
+                      onClick={() => this.handleCellClick(cellId)}
+                    >
                       {cellMap[cellId] && (
                         <div className="highlight">
                           <span>{cellMap[cellId]}</span>
@@ -107,6 +173,12 @@
                 })}
               </div>
             </div>
+            {selectedCellInfo && (
+              <div className="cell-info">
+                <h2>Cantidades de locales/entidades de Zona {selectedCellInfo.id}</h2>
+                {this.renderCellInfo(selectedCellInfo)}
+              </div>
+            )}
           </div>
         );
       }
