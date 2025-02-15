@@ -1,48 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survey Results</title>
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <link rel="stylesheet" href="./main.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Survey Results</title>
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <link rel="stylesheet" href="./main.css" />
+  <style>
+    /* Ajusta o agrega estos estilos para la cuadrícula y resaltado */
+    .image-container {
+      position: relative;
+      width: 800px; /* Ajusta según tus necesidades */
+      margin: 0 auto;
+    }
+    .background-image {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+    }
+    .grid-cell {
+      border: 1px solid rgba(255, 255, 255, 0.5); /* Opcional para ver las divisiones */
+      position: relative;
+    }
+    .highlight {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 255, 0, 0.3); /* Verde translúcido */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8em;
+      color: black;
+    }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
+  <div id="root"></div>
 
-    <script type="text/babel">
-        class Results extends React.Component {
-            constructor(props) {
-                super(props);
-                this.state = {
-                    answers: {}
-                };
-            }
+  <script type="text/babel">
+    class Results extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          topCells: [] // Aquí se almacenará el array top_cells recibido del backend
+        };
+      }
 
-            componentDidMount() {
-                const urlParams = new URLSearchParams(window.location.search);
-                // Se lee el parámetro "results"
-                const resultsParam = urlParams.get('results');
-                if (resultsParam) {
-                    const data = JSON.parse(resultsParam);
-                    // Se extrae la propiedad top_cells del JSON recibido
-                    this.setState({ answers: data.top_cells });
-                }
-            }
-
-            render() {
-                return (
-                    <div>
-                        <h1>Aquestes zones son les que millor apliquen als teus interessos!</h1>
-                        <pre>{JSON.stringify(this.state.answers, null, 2)}</pre>
-                    </div>
-                );
-            }
+      componentDidMount() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const resultsParam = urlParams.get('results');
+        if (resultsParam) {
+          // Decodificar y parsear el JSON
+          const data = JSON.parse(decodeURIComponent(resultsParam));
+          // Se asume que el JSON tiene la propiedad "top_cells"
+          this.setState({ topCells: data.top_cells });
         }
+      }
 
-        ReactDOM.render(<Results />, document.getElementById("root"));
-    </script>
+      render() {
+        const { topCells } = this.state;
+        // Crear un mapa de cell_id a score para consulta rápida
+        const cellMap = {};
+        topCells.forEach(cell => {
+          cellMap[cell.cell_id] = cell.score;
+        });
+
+        return (
+          <div>
+            <h1>
+              Aquestes zones són les que millor s'adapten als teus interessos!
+            </h1>
+            <div className="image-container">
+              <img
+                src="./tarragona.jpeg"
+                alt="Tarragona Map"
+                className="background-image"
+              />
+              <div className="grid-overlay">
+                {[...Array(16)].map((_, index) => {
+                  // Suponemos que el cell_id corresponde a index + 1
+                  const cellId = index + 1;
+                  return (
+                    <div key={index} className="grid-cell">
+                      {cellMap[cellId] && (
+                        <div className="highlight">
+                          <span>{cellMap[cellId]}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      }
+    }
+
+    ReactDOM.render(<Results />, document.getElementById("root"));
+  </script>
 </body>
 </html>
