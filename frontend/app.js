@@ -43,9 +43,23 @@ class App extends React.Component {
             mockData: mockData
         };
 
-        const json = JSON.stringify(combinedData);
+        // Send the combined data to the backend
+        fetch('/procesar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(answers)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Response from backend:', data);
+            // Redirect to results page with the response data
+            const json = JSON.stringify(data);
         const encodedJson = encodeURIComponent(json);
-        window.location.href = `results.html?answers=${encodedJson}`;
+        window.location.href = `results.html?results=${encodedJson}`;
+})
+        .catch(error => console.error('Error:', error));
     }
 
     render() {
