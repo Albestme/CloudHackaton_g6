@@ -29,9 +29,8 @@ class App extends React.Component {
 
     handleIASubmit(event) {
         event.preventDefault();
-
         const descripcion = this.state.descripcionIA;
-        fetch('http://localhost:5000/procesar', {
+        fetch('http://localhost:5000/procesarIA', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ descripcion })
@@ -40,7 +39,8 @@ class App extends React.Component {
         .then(data => {
             const json = JSON.stringify(data);
             const encodedJson = encodeURIComponent(json);
-            window.location.href = `results.html?results=${encodedJson}`;
+            // Redirigir a resultsIA.html en lugar de results.html
+            window.location.href = `resultsIA.html?results=${encodedJson}`;
         })
         .catch(error => console.error('Error:', error));
     }

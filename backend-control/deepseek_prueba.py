@@ -19,7 +19,7 @@ def deepseek_api(descripcion_usuario):
         - Estudis (Colegios, universidades, bibliotecas)
         - MediAmbient (Zonas verdes, parques, naturaleza)
 
-        Devuelve solo un JSON con las puntuaciones del 1 al 5 en cada categoría, por ejemplo:
+        Devuelve solo y exclusivamente un JSON con las puntuaciones del 1 al 5 en cada categoría, por ejemplo:
         {{"Assistencials": 3, "Culturals": 5, "Esportives": 4, "Estudis": 2, "MediAmbient": 3}}
 
         Descripción del usuario:
