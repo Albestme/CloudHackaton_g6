@@ -23,8 +23,13 @@
 
             componentDidMount() {
                 const urlParams = new URLSearchParams(window.location.search);
-                const answers = JSON.parse(urlParams.get('answers'));
-                this.setState({ answers });
+                // Se lee el parámetro "results"
+                const resultsParam = urlParams.get('results');
+                if (resultsParam) {
+                    const data = JSON.parse(resultsParam);
+                    // Se extrae la propiedad top_cells del JSON recibido
+                    this.setState({ answers: data.top_cells });
+                }
             }
 
             render() {
