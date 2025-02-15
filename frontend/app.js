@@ -40,7 +40,6 @@ class App extends React.Component {
 
         // Combine form answers with mock data
         const combinedData = {
-            answers: answers,
             mockData: mockData
         };
 
