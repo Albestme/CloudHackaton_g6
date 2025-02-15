@@ -3,27 +3,46 @@ class App extends React.Component {
         super(props);
         this.state = {
             questions: [],
-            mockData: []
+            mockData: [],
+            descripcionIA: ''
         };
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleIAChange = this.handleIAChange.bind(this);
+        this.handleIASubmit = this.handleIASubmit.bind(this);
     }
 
     componentDidMount() {
         fetch('questions.json')
             .then(response => response.json())
-            .then(data => {
-                console.log('Fetched questions:', data.questions);
-                this.setState({ questions: data.questions });
-            })
+            .then(data => this.setState({ questions: data.questions }))
             .catch(error => console.error('Error fetching questions:', error));
 
         fetch('mock.json')
             .then(response => response.json())
-            .then(data => {
-                console.log('Fetched mock data:', data.results);
-                this.setState({ mockData: data.results });
-            })
+            .then(data => this.setState({ mockData: data.results }))
             .catch(error => console.error('Error fetching mock data:', error));
+    }
+
+    handleIAChange(event) {
+        this.setState({ descripcionIA: event.target.value });
+    }
+
+    handleIASubmit(event) {
+        event.preventDefault();
+
+        const descripcion = this.state.descripcionIA;
+        fetch('http://localhost:5000/procesar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ descripcion })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const json = JSON.stringify(data);
+            const encodedJson = encodeURIComponent(json);
+            window.location.href = `results.html?results=${encodedJson}`;
+        })
+        .catch(error => console.error('Error:', error));
     }
 
     handleSubmit(event) {
@@ -32,27 +51,20 @@ class App extends React.Component {
         const answers = {};
 
         this.state.questions.forEach(question => {
-            const category = question.category; // Asegúrate de que cada pregunta tenga una categoría definida
+            const category = question.category;
             const value = formData.get(`question_${question.id}`);
             if (category && value) {
                 answers[category] = parseInt(value, 10);
             }
         });
 
-        console.log('Formatted Answers:', answers);
-
-        // Enviar los datos al backend
         fetch('http://localhost:5000/procesar', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(answers)
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Response from backend:', data);
-            // Redirigir con los datos obtenidos usando el parámetro "results"
             const json = JSON.stringify(data);
             const encodedJson = encodeURIComponent(json);
             window.location.href = `results.html?results=${encodedJson}`;
@@ -63,7 +75,7 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <h1>Descobreix la teva zona preferida a Tarragona! 🚀</h1>
+                <h1 className="title">Descobreix la teva zona preferida a Tarragona! 🚀</h1>
                 <div className="image-container">
                     <img src="./tarragona.jpeg" alt="Tarragona Image" className="background-image" />
                     <div className="grid-overlay">
@@ -72,8 +84,25 @@ class App extends React.Component {
                         ))}
                     </div>
                 </div>
-                <h1>Emplena el qüestionari perquè et puguem recomanar una zona</h1>
-                <form onSubmit={this.handleSubmit}>
+
+                <div className="ia-search-container">
+                    <h2>Descobreix el teu perfil amb IA</h2>
+                    <form onSubmit={this.handleIASubmit} className="ia-search-form">
+                        <label>Descriu els teus gustos i preferències per a viure a Tarragona:</label>
+                        <input
+                            type="text"
+                            value={this.state.descripcionIA}
+                            onChange={this.handleIAChange}
+                            placeholder="M'agrada fer esport i tenir natura a prop..."
+                            required
+                            className="ia-input"
+                        />
+                        <button type="submit" className="ia-button">Coneix-te amb la nostra IA</button>
+                    </form>
+                </div>
+
+                <h1 className="title">Emplena el qüestionari perquè et puguem recomanar una zona</h1>
+                <form onSubmit={this.handleSubmit} className="questionnaire-form">
                     {this.state.questions.map(question => (
                         <div key={question.id} className="form-group">
                             <label>{question.text}</label>
@@ -87,7 +116,7 @@ class App extends React.Component {
                             </div>
                         </div>
                     ))}
-                    <button type="submit">Submit</button>
+                    <button type="submit" className="submit-button">Enviar respostes</button>
                 </form>
             </div>
         );
