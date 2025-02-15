@@ -1,31 +1,34 @@
 {
-"questions": [
+    "questions": [
         {
             "id": 1,
-            "question": "What is your favorite color?",
-            "type": "text"
+            "text": "T'interesen activitats esportives o fer activitat física regularment?",
+            "category": "Esportives",
+            "scale": [1, 2, 3, 4, 5]
         },
         {
             "id": 2,
-            "question": "What is your age?",
-            "type": "number"
+            "text": "Participaries en activitats culturals com diables, ball de bastons, castells, etc.?",
+            "category": "Culturals",
+            "scale": [1, 2, 3, 4, 5]
         },
         {
             "id": 3,
-            "question": "What is your gender?",
-            "type": "multiple-choice",
-            "options": ["Male", "Female", "Other"]
+            "text": "T'interesen temes medioambientals com benestar animal?",
+            "category": "MediAmbient",
+            "scale": [1, 2, 3, 4, 5]
         },
         {
             "id": 4,
-            "question": "What is your favorite programming language?",
-            "type": "multiple-choice",
-            "options": ["JavaScript", "Python", "Java", "C#", "Other"]
+            "text": "Valores que hi hagi centres educatius/formatius, AMPA, biblioteques a prop teu?",
+            "category": "Estudis",
+            "scale": [1, 2, 3, 4, 5]
         },
         {
             "id": 5,
-            "question": "Do you like traveling?",
-            "type": "boolean"
+            "text": "Et preocupa que existeixen associacions de suport social, salut, atenció en necessitats especials o col·lectius vulnerables?",
+            "category": "Assistencials",
+            "scale": [1, 2, 3, 4, 5]
         }
     ]
 }
