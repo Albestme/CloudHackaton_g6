@@ -2,7 +2,8 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            questions: []
+            questions: [],
+            mockData: []
         };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -15,6 +16,14 @@ class App extends React.Component {
                 this.setState({ questions: data.questions });
             })
             .catch(error => console.error('Error fetching questions:', error));
+
+        fetch('mock.json')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Fetched mock data:', data.results);
+                this.setState({ mockData: data.results });
+            })
+            .catch(error => console.error('Error fetching mock data:', error));
     }
 
     handleSubmit(event) {
@@ -24,9 +33,20 @@ class App extends React.Component {
         this.state.questions.forEach(question => {
             answers[question.id] = formData.get(`question_${question.id}`);
         });
-        const json = JSON.stringify(answers, null, 2);
-        console.log('Form JSON:', json);
-        // You can send the JSON to a server or process it further here
+
+        // Use the mock data
+        const mockData = this.state.mockData;
+        console.log('Mock Data:', mockData);
+
+        // Combine form answers with mock data
+        const combinedData = {
+            answers: answers,
+            mockData: mockData
+        };
+
+        const json = JSON.stringify(combinedData);
+        const encodedJson = encodeURIComponent(json);
+        window.location.href = `results.html?answers=${encodedJson}`;
     }
 
     render() {

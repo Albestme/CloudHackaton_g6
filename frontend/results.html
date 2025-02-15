@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Results</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <link rel="stylesheet" href="./main.css">
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        class Results extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    answers: {}
+                };
+            }
+
+            componentDidMount() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const answers = JSON.parse(urlParams.get('answers'));
+                this.setState({ answers });
+            }
+
+            render() {
+                return (
+                    <div>
+                        <h1>Aquestes zones son les que millor apliquen als teus interessos!</h1>
+                        <pre>{JSON.stringify(this.state.answers, null, 2)}</pre>
+                    </div>
+                );
+            }
+        }
+
+        ReactDOM.render(<Results />, document.getElementById("root"));
+    </script>
+</body>
+</html>
