@@ -13,7 +13,7 @@ DB_CONFIG = {
     'user': 'admin',
     'password': 'contrasena',
     'database': 'Tarragona',
-    #'port': 3306
+    # 'port': 3306
 }
 
 def connect_db():
@@ -70,7 +70,7 @@ def procesar():
     
     try:
         # Consultar TODAS las celdas de la matriz (16)
-        cursor.execute("SELECT * FROM subdivision")  # Asume tabla 'subdivision' con columnas: id, Assistencials, Culturals, Esportives, Estudis, MediAmbient
+        cursor.execute("SELECT * FROM subdivision")  # Se asume la tabla 'subdivision' con columnas: id, Assistencials, Culturals, Esportives, Estudis, MediAmbient
         grid_data = cursor.fetchall()
         
         scores = []
@@ -78,12 +78,10 @@ def procesar():
         for cell in grid_data:
             cell_id = cell['id']
             total_score = 0
-            
             # Multiplicar cada categoría ponderada por su valor en la celda
             for category, weight in weighted_categories.items():
                 category_count = cell.get(category, 0)  # Si no existe, usa 0
                 total_score += weight * category_count
-            
             scores.append({"cell_id": cell_id, "score": total_score})
         
         # Ordenar por score descendente y seleccionar top 3
@@ -93,6 +91,28 @@ def procesar():
     
     except Error as e:
         print("Error en la consulta:", e)
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/cell_info/<int:cell_id>', methods=['GET'])
+def cell_info(cell_id):
+    conn = connect_db()
+    if not conn:
+        return jsonify({"error": "Error en la base de datos"}), 500
+    cursor = conn.cursor(dictionary=True)
+    try:
+        # Consultar la casilla con el id indicado
+        query = "SELECT * FROM subdivision WHERE id = %s"
+        cursor.execute(query, (cell_id,))
+        result = cursor.fetchone()
+        if result:
+            return jsonify(result)
+        else:
+            return jsonify({"error": "No se encontró la casilla"}), 404
+    except Error as e:
+        print("Error en la consulta de cell_info:", e)
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
