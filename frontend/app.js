@@ -30,21 +30,19 @@ class App extends React.Component {
         event.preventDefault();
         const formData = new FormData(event.target);
         const answers = {};
+
         this.state.questions.forEach(question => {
-            answers[question.id] = formData.get(`question_${question.id}`);
+            const category = question.category; // Asegúrate de que cada pregunta tenga una categoría definida
+            const value = formData.get(`question_${question.id}`);
+            if (category && value) {
+                answers[category] = parseInt(value, 10);
+            }
         });
 
-        // Use the mock data
-        const mockData = this.state.mockData;
-        console.log('Mock Data:', mockData);
+        console.log('Formatted Answers:', answers);
 
-        // Combine form answers with mock data
-        const combinedData = {
-            mockData: mockData
-        };
-
-        // Send the combined data to the backend
-        fetch('/procesar', {
+        // Enviar los datos al backend
+        fetch('http://localhost:5000/procesar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -54,47 +52,43 @@ class App extends React.Component {
         .then(response => response.json())
         .then(data => {
             console.log('Response from backend:', data);
-            // Redirect to results page with the response data
+            // Redirigir con los datos obtenidos
             const json = JSON.stringify(data);
-        const encodedJson = encodeURIComponent(json);
-        window.location.href = `results.html?results=${encodedJson}`;
-})
+            const encodedJson = encodeURIComponent(json);
+            window.location.href = `results.html?results=${encodedJson}`;
+        })
         .catch(error => console.error('Error:', error));
     }
 
     render() {
         return (
             <div>
-                <div>
-                    <h1>Descobreix la teva zona preferida a Tarragona! 🚀</h1>
-                    <div className="image-container">
-                        <img src="./tarragona.jpeg" alt="Tarragona Image" className="background-image" />
-                        <div className="grid-overlay">
-                            {[...Array(16)].map((_, index) => (
-                                <button key={index} className="grid-button">Zona {index + 1}</button>
-                            ))}
-                        </div>
+                <h1>Descobreix la teva zona preferida a Tarragona! 🚀</h1>
+                <div className="image-container">
+                    <img src="./tarragona.jpeg" alt="Tarragona Image" className="background-image" />
+                    <div className="grid-overlay">
+                        {[...Array(16)].map((_, index) => (
+                            <button key={index} className="grid-button">Zona {index + 1}</button>
+                        ))}
                     </div>
                 </div>
-                <div>
-                    <h1>Emplena el cuestionari per que et poguem recomanar una zona</h1>
-                    <form onSubmit={this.handleSubmit}>
-                        {this.state.questions.map(question => (
-                            <div key={question.id} className="form-group">
-                                <label>{question.text}</label>
-                                <div className="options-container">
-                                    {question.scale && question.scale.map(option => (
-                                        <div key={option} className="option">
-                                            <input type="radio" name={`question_${question.id}`} value={option} required />
-                                            <label>{option}</label>
-                                        </div>
-                                    ))}
-                                </div>
+                <h1>Emplena el qüestionari perquè et puguem recomanar una zona</h1>
+                <form onSubmit={this.handleSubmit}>
+                    {this.state.questions.map(question => (
+                        <div key={question.id} className="form-group">
+                            <label>{question.text}</label>
+                            <div className="options-container">
+                                {question.scale && question.scale.map(option => (
+                                    <div key={option} className="option">
+                                        <input type="radio" name={`question_${question.id}`} value={option} required />
+                                        <label>{option}</label>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                        <button type="submit">Submit</button>
-                    </form>
-                </div>
+                        </div>
+                    ))}
+                    <button type="submit">Submit</button>
+                </form>
             </div>
         );
     }

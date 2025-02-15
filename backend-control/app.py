@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import mysql.connector
 from mysql.connector import Error
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS
 
 # Configuración de la base de datos (Amazon RDS)
 DB_CONFIG = {
