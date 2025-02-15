@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resultats IA</title>
+  <!-- Incluir React, ReactDOM y Babel -->
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <link rel="stylesheet" href="./main.css" />
+  <style>
+    /* Estilos para la vista de resultados IA */
+    .image-container {
+      position: relative;
+      width: 1000px;
+      margin: 0 auto;
+    }
+    .background-image {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+    }
+    .grid-cell {
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      position: relative;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .grid-cell:hover {
+      cursor: pointer;
+      transform: scale(1.05);
+      opacity: 0.9;
+      border-color: #00aa00;
+    }
+    .highlight {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 255, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1em;
+      color: #000;
+    }
+    .cell-info {
+      margin-top: 20px;
+      background: #f9f9f9;
+      padding: 20px;
+      border: 1px solid #ddd;
+      width: 1000px;
+      margin: 20px auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .cell-info h2 {
+      margin-top: 0;
+    }
+    .info-row {
+      display: flex;
+      margin-bottom: 8px;
+    }
+    .info-label {
+      font-weight: bold;
+      width: 150px;
+    }
+    .info-value {
+      flex: 1;
+    }
+    .ia-results {
+      width: 1000px;
+      margin: 20px auto;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #f4f4f4;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    class ResultsIA extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          topCells: [],
+          aiScores: {},
+          selectedCellInfo: null
+        };
+        this.handleCellClick = this.handleCellClick.bind(this);
+      }
+      
+      componentDidMount() {
+        // Extraer el parámetro "results" de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const resultsParam = urlParams.get('results');
+        if (resultsParam) {
+          const data = JSON.parse(decodeURIComponent(resultsParam));
+          this.setState({
+            topCells: data.top_cells,
+            aiScores: data.ai_scores
+          });
+        }
+      }
+      
+      handleCellClick(cellId) {
+        fetch(`http://localhost:5000/cell_info/${cellId}`)
+          .then(response => response.json())
+          .then(data => {
+            this.setState({ selectedCellInfo: data });
+          })
+          .catch(error => console.error('Error fetching cell info:', error));
+      }
+      
+      renderCellInfo(info) {
+        const excludeKeys = [
+          "coords_abajo_dch",
+          "coords_abajo_izq",
+          "coords_arriba_dch",
+          "coords_arriba_izq",
+          "id"
+        ];
+        const keysToShow = Object.keys(info).filter(key => !excludeKeys.includes(key));
+        return (
+          <div>
+            {keysToShow.map(key => (
+              <div key={key} className="info-row">
+                <span className="info-label">{key}:</span>
+                <span className="info-value">{info[key]}</span>
+              </div>
+            ))}
+          </div>
+        );
+      }
+      
+      render() {
+        const { topCells, aiScores, selectedCellInfo } = this.state;
+        const cellMap = {};
+        topCells.forEach(cell => {
+          cellMap[cell.cell_id] = cell.score;
+        });
+        
+        return (
+          <div>
+            <h1>Zones Recomanades segons la teva descripció (IA)</h1>
+            
+            <div className="ia-results">
+              <h2>Resultats de la IA</h2>
+              <ul>
+                {Object.keys(aiScores).map(key => (
+                  <li key={key}>{key}: {aiScores[key]}</li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="image-container">
+              <img
+                src="./tarragona.jpeg"
+                alt="Mapa de Tarragona"
+                className="background-image"
+              />
+              <div className="grid-overlay">
+                {[...Array(16)].map((_, index) => {
+                  const cellId = index + 1;
+                  return (
+                    <div
+                      key={index}
+                      className="grid-cell"
+                      onClick={() => this.handleCellClick(cellId)}
+                    >
+                      {cellMap[cellId] && (
+                        <div className="highlight">
+                          <span>{cellMap[cellId]}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {selectedCellInfo && (
+              <div className="cell-info">
+                <h2>Informació de la Zona {selectedCellInfo.id}</h2>
+                {this.renderCellInfo(selectedCellInfo)}
+              </div>
+            )}
+          </div>
+        );
+      }
+    }
+    
+    ReactDOM.render(<ResultsIA />, document.getElementById("root"));
+  </script>
+</body>
+</html>
