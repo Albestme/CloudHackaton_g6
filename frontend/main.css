@@ -23,7 +23,7 @@ button {
     padding: 10px 20px;
     cursor: pointer;
     font-size: 16px;
-
+    margin-top: 10px;
 }
 
 button:hover {
@@ -70,6 +70,79 @@ p {
 
 .grid-button:hover {
     opacity: 1;
+}
+
+.question-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 10%;
+}
+
+.options-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+form h1 {
+    margin-bottom: 20px;
+}
+
+form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+form .options-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+form .option {
+    display: flex;
+    align-items: center;
+}
+
+form .option input {
+    margin-right: 5px;
+}
+
+form button[type="submit"] {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+form button[type="submit"]:hover {
+    background: #0056b3;
 }
 
 
