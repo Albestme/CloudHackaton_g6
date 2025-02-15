@@ -50,7 +50,7 @@ Disseny i implementació d'un servei web interactiu per l'usuari que mostra mapa
 
 ## ☁️ Sistema Implementat
 
-Ajunteu un diagrama visual del vostre sistema.
+![alt text](image-3.png)
 
 ## 🌍 Impacte del projecte
 
